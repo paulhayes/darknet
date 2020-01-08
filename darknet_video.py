@@ -42,8 +42,8 @@ altNames = None
 def YOLO():
 
     global metaMain, netMain, altNames
-    configPath = "./cfg/yolov3.cfg"
-    weightPath = "./yolov3.weights"
+    configPath = "./cfg/yolov3-tiny.cfg"
+    weightPath = "./yolov3-tiny.weights"
     metaPath = "./cfg/coco.data"
     if not os.path.exists(configPath):
         raise ValueError("Invalid config path `" +
@@ -79,13 +79,13 @@ def YOLO():
                     pass
         except Exception:
             pass
-    #cap = cv2.VideoCapture(0)
-    cap = cv2.VideoCapture("test.mp4")
+    cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture("test.mp4")
     cap.set(3, 1280)
     cap.set(4, 720)
     out = cv2.VideoWriter(
-        "output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 10.0,
-        (darknet.network_width(netMain), darknet.network_height(netMain)))
+        "output.avi", cv2.VideoWriter_fourcc(*"MJPG"), 10.0, (darknet.network_width(netMain), darknet.network_height(netMain))) 
+    #(darknet.network_width(netMain), darknet.network_height(netMain))
     print("Starting the YOLO loop...")
 
     # Create an image we reuse for each detect
@@ -104,10 +104,18 @@ def YOLO():
 
         detections = darknet.detect_image(netMain, metaMain, darknet_image, thresh=0.25)
         image = cvDrawBoxes(detections, frame_resized)
+        fps = 1/(time.time()-prev_time)
+        msg = "fps:" + str(round(fps, 2))
+        dim = cv2.getTextSize(msg,cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)
+        cv2.putText(image,
+                    msg,
+                    (5,dim[1]+5), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                    [0, 255, 0], 2)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        print(1/(time.time()-prev_time))
-        cv2.imshow('Demo', image)
-        cv2.waitKey(3)
+        print(fps)
+        out.write(image)
+        #cv2.imshow('Demo', image)
+        #cv2.waitKey(3)
     cap.release()
     out.release()
 

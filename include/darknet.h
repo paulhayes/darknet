@@ -120,6 +120,11 @@ typedef enum {
     YOLO_CENTER = 1 << 0, YOLO_LEFT_TOP = 1 << 1, YOLO_RIGHT_BOTTOM = 1 << 2
 } YOLO_POINT;
 
+// parser.h
+typedef enum {
+    NO_WEIGHTS, PER_FEATURE, PER_CHANNEL
+} WEIGHTS_TYPE_T;
+
 
 // image.h
 typedef enum{
@@ -137,6 +142,7 @@ typedef enum {
     DECONVOLUTIONAL,
     CONNECTED,
     MAXPOOL,
+    LOCAL_AVGPOOL,
     SOFTMAX,
     DETECTION,
     DROPOUT,
@@ -202,6 +208,7 @@ struct layer {
     void(*update_gpu)    (struct layer, int, float, float, float);
     layer *share_layer;
     int train;
+    int avgpool;
     int batch_normalize;
     int shortcut;
     int batch;
@@ -248,6 +255,11 @@ struct layer {
     int truth;
     float smooth;
     float dot;
+    int deform;
+    int sway;
+    int rotate;
+    int stretch;
+    int stretch_sway;
     float angle;
     float jitter;
     float saturation;
@@ -257,6 +269,7 @@ struct layer {
     float learning_rate_scale;
     float clip;
     int focal_loss;
+    float *classes_multipliers;
     float label_smooth_eps;
     int noloss;
     int softmax;
@@ -311,12 +324,18 @@ struct layer {
 
     float temperature;
     float probability;
+    float dropblock_size_rel;
+    int dropblock_size_abs;
+    int dropblock;
     float scale;
 
     char  * cweights;
     int   * indexes;
     int   * input_layers;
     int   * input_sizes;
+    float **layers_output;
+    float **layers_delta;
+    WEIGHTS_TYPE_T weights_type;
     int   * map;
     int   * counts;
     float ** sums;
@@ -539,6 +558,7 @@ struct layer {
     float * x_norm_gpu;
     float * weights_gpu;
     float * weight_updates_gpu;
+    float * weight_deform_gpu;
     float * weight_change_gpu;
 
     float * weights_gpu16;
@@ -563,6 +583,10 @@ struct layer {
 
     float *gt_gpu;
     float *a_avg_gpu;
+
+    int *input_sizes_gpu;
+    float **layers_output_gpu;
+    float **layers_delta_gpu;
 #ifdef CUDNN
     cudnnTensorDescriptor_t srcTensorDesc, dstTensorDesc;
     cudnnTensorDescriptor_t srcTensorDesc16, dstTensorDesc16;
@@ -597,6 +621,7 @@ typedef struct network {
     layer *layers;
     float *output;
     learning_rate_policy policy;
+    int benchmark_layers;
 
     float learning_rate;
     float learning_rate_min;
@@ -810,6 +835,7 @@ typedef struct load_args {
     int augment_speed;
     int letter_box;
     int show_imgs;
+    int dontuse_opencv;
     float jitter;
     int flip;
     int blur;
@@ -855,6 +881,7 @@ typedef struct box_label {
 LIB_API network *load_network(char *cfg, char *weights, int clear);
 LIB_API network *load_network_custom(char *cfg, char *weights, int clear, int batch);
 LIB_API network *load_network(char *cfg, char *weights, int clear);
+LIB_API void free_network(network net);
 
 // network.c
 LIB_API load_args get_base_args(network *net);
@@ -880,9 +907,9 @@ LIB_API void reset_rnn(network *net);
 LIB_API float *network_predict_image(network *net, image im);
 LIB_API float *network_predict_image_letterbox(network *net, image im);
 LIB_API float validate_detector_map(char *datacfg, char *cfgfile, char *weightfile, float thresh_calc_avg_iou, const float iou_thresh, const int map_points, int letter_box, network *existing_net);
-LIB_API void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear, int dont_show, int calc_map, int mjpeg_port, int show_imgs);
+LIB_API void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear, int dont_show, int calc_map, int mjpeg_port, int show_imgs, int benchmark_layers);
 LIB_API void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh,
-    float hier_thresh, int dont_show, int ext_output, int save_labels, char *outfile, int letter_box);
+    float hier_thresh, int dont_show, int ext_output, int save_labels, char *outfile, int letter_box, int benchmark_layers);
 LIB_API int network_width(network *net);
 LIB_API int network_height(network *net);
 LIB_API void optimize_picture(network *net, image orig, int max_layer, float scale, float rate, float thresh, int norm);
@@ -897,7 +924,8 @@ LIB_API image load_image_color(char *filename, int w, int h);
 LIB_API void free_image(image m);
 
 // layer.h
-LIB_API void free_layer(layer);
+LIB_API void free_layer_custom(layer l, int keep_cudnn_desc);
+LIB_API void free_layer(layer l);
 
 // data.c
 LIB_API void free_data(data d);

@@ -245,7 +245,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
                 }
             }
 
-            if (!benchmark) draw_detections_cv_v3(show_img, local_dets, local_nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes, demo_ext_output);
+            if (!benchmark && 0) draw_detections_cv_v3(show_img, local_dets, local_nboxes, demo_thresh, demo_names, demo_alphabet, demo_classes, demo_ext_output);
             free_detections(local_dets, local_nboxes);
 
             printf("\nFPS:%.1f \t AVG_FPS:%.1f\n", fps, avg_fps);
@@ -275,7 +275,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
             if (mjpeg_port > 0 && show_img) {
                 int port = mjpeg_port;
                 int timeout = 400000;
-                int jpeg_quality = 40;    // 1 - 100
+                int jpeg_quality = 80;    // 1 - 100
                 send_mjpeg(show_img, port, timeout, jpeg_quality);
             }
 

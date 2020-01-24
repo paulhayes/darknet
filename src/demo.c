@@ -103,7 +103,7 @@ double get_wall_time()
 
 void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int cam_index, const char *filename, char **names, int classes,
     int frame_skip, char *prefix, char *out_filename, int mjpeg_port, int json_port, int dont_show, int ext_output, int letter_box_in, int time_limit_sec, char *http_post_host,
-    int benchmark, int benchmark_layers)
+    int benchmark, int benchmark_layers, int jpeg_quality)
 {
     letter_box = letter_box_in;
     in_img = det_img = show_img = NULL;
@@ -275,7 +275,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
             if (mjpeg_port > 0 && show_img) {
                 int port = mjpeg_port;
                 int timeout = 400000;
-                int jpeg_quality = 80;    // 1 - 100
+                //int jpeg_quality = 80;    // 1 - 100
                 send_mjpeg(show_img, port, timeout, jpeg_quality);
             }
 
@@ -360,7 +360,7 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
 #else
 void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int cam_index, const char *filename, char **names, int classes,
     int frame_skip, char *prefix, char *out_filename, int mjpeg_port, int json_port, int dont_show, int ext_output, int letter_box_in, int time_limit_sec, char *http_post_host,
-    int benchmark, int benchmark_layers)
+    int benchmark, int benchmark_layers, int jpeg_quality)
 {
     fprintf(stderr, "Demo needs OpenCV for webcam images.\n");
 }

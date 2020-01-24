@@ -479,6 +479,10 @@ public:
                 }
                 maxfd = (maxfd>client ? maxfd : client);
                 FD_SET(client, &master);
+                char *buf = (char *)calloc(1024, sizeof(char));
+                ::recv(s, buf, 1024, 0);
+                cerr << buf << " \n";
+                free(buf);
                 _write(client, "HTTP/1.0 200 OK\r\n", 0);
                 _write(client,
                     "Server: Mozarella/2.2\r\n"
@@ -503,9 +507,12 @@ public:
                 char head[400];
                 sprintf(head, "--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: %zu\r\n\r\n", outlen);
                 _write(s, head, 0);
-                int n = _write(s, (char*)(&outbuf[0]), outlen);
+                int n = 0;
+                while (n < (int32_t)outlen && n != -1){
+                  n += _write(s, (char*)(&outbuf[n]), outlen-n);
+                }
                 //cerr << "known client " << s << " " << n << endl;
-                if (n < outlen)
+                if (n == -1)
                 {
                     cerr << "MJPG_sender: kill client " << s << endl;
                     ::shutdown(s, 2);

@@ -593,14 +593,16 @@ extern "C" cap_cv* get_capture_webcam(int index)
 
 extern "C" void set_capture_dim(cap_cv* cap, int width, int height)
 {
+    cv::VideoCapture &cpp_cap = *(cv::VideoCapture *)cap;
+
     try {
-        cap->set(CV_CAP_PROP_FRAME_WIDTH, width);
-        cap->set(CV_CAP_PROP_FRAME_HEIGHT, height);
+        cpp_cap.set(CV_CAP_PROP_FRAME_WIDTH, width);
+        cpp_cap.set(CV_CAP_PROP_FRAME_HEIGHT, height);
     }
     catch (...) {
-        cerr << " OpenCV set Web-camera capture dimensions" << index << " \n";
+        cerr << " OpenCV set Web-camera capture dimensions \n";
     }
-    return (cap_cv*)cap;
+    
 }
 // ----------------------------------------
 

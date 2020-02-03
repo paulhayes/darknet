@@ -103,7 +103,7 @@ double get_wall_time()
 
 void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int cam_index, const char *filename, char **names, int classes,
     int frame_skip, char *prefix, char *out_filename, int mjpeg_port, int json_port, int dont_show, int ext_output, int letter_box_in, int time_limit_sec, char *http_post_host,
-    int benchmark, int benchmark_layers, int jpeg_quality)
+    int benchmark, int benchmark_layers, int jpeg_quality, int cam_width, int cam_height)
 {
     letter_box = letter_box_in;
     in_img = det_img = show_img = NULL;
@@ -132,6 +132,12 @@ void demo(char *cfgfile, char *weightfile, float thresh, float hier_thresh, int 
     }else{
         printf("Webcam index: %d\n", cam_index);
         cap = get_capture_webcam(cam_index);
+        
+        //setup camera
+        if(cam_width>0 && cam_height>0){
+          set_capture_dim(cap, cam_width, cam_height);
+        }
+
     }
 
     if (!cap) {

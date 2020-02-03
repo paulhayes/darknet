@@ -1615,6 +1615,8 @@ void run_detector(int argc, char **argv)
     int width = find_int_arg(argc, argv, "-width", -1);
     int height = find_int_arg(argc, argv, "-height", -1);
     int jpeg_quality = find_int_arg(argc,argv,"-jpeg_quality",50);
+    int cam_width = find_int_arg(argc,argv,"-cam_width",0);
+    int cam_height = find_int_arg(argc,argv,"-cam_height",0);
     // extended output in test mode (output of rect bound coords)
     // and for recall mode (extended output table-like format with results for best_class fit)
     int ext_output = find_arg(argc, argv, "-ext_output");
@@ -1671,7 +1673,7 @@ void run_detector(int argc, char **argv)
             if (strlen(filename) > 0)
                 if (filename[strlen(filename) - 1] == 0x0d) filename[strlen(filename) - 1] = 0;
         demo(cfg, weights, thresh, hier_thresh, cam_index, filename, names, classes, frame_skip, prefix, out_filename,
-            mjpeg_port, json_port, dont_show, ext_output, letter_box, time_limit_sec, http_post_host, benchmark, benchmark_layers, jpeg_quality);
+            mjpeg_port, json_port, dont_show, ext_output, letter_box, time_limit_sec, http_post_host, benchmark, benchmark_layers, jpeg_quality, cam_width, cam_height);
 
         free_list_contents_kvp(options);
         free_list(options);

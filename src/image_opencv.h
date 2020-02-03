@@ -69,6 +69,7 @@ void release_video_writer(write_cv **output_video_writer);
 // Video Capture
 cap_cv* get_capture_video_stream(const char *path);
 cap_cv* get_capture_webcam(int index);
+void set_capture_dim(cap_cv* cap, int width, int height);
 void release_capture(cap_cv* cap);
 
 mat_cv* get_capture_frame_cv(cap_cv *cap);
